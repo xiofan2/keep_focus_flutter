@@ -1,7 +1,8 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'config/style/color_scheme.dart';
+import 'config/style/default_color_scheme.dart';
 import 'module/home/view.dart';
 
 void main() {
@@ -13,11 +14,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: '😡保持专注！',
-      theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
-      darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
-      home: HomePage(),
+    return DynamicColorBuilder(
+        builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+          return GetMaterialApp(
+            title: '😡保持专注！',
+            theme: ThemeData(useMaterial3: true, colorScheme: lightDynamic ?? lightColorScheme),
+            darkTheme: ThemeData(useMaterial3: true, colorScheme: darkDynamic ?? darkColorScheme),
+            home: HomePage(),
+          );
+        }
     );
   }
 }

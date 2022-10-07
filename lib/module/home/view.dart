@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide DateUtils;
 import 'package:get/get.dart';
+import 'package:keep_focus/common_widget/calendar_widget.dart';
 
+import 'component/count_down_view.dart';
 import 'logic.dart';
 
 class HomePage extends StatelessWidget {
@@ -11,6 +13,44 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return GetBuilder<HomeLogic>(
+      init: logic,
+      builder: (logic) {
+        return Scaffold(
+          key: state.scaffoldState,
+          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+          appBar: AppBar(
+            key: state.appBarKey,
+            scrolledUnderElevation: 0,
+            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+            centerTitle: true,
+            title: Text(
+              '保持专注',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ),
+          body: Stack(
+            children: [
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                  child: CalendarWidget(
+                    key: state.calendarWidgetKey,
+                    monthDate: DateTime.now(),
+                    isExpanded: state.isCalendarExpanded,
+                  ),
+                ),
+              ),
+              CountDownView(
+                controller: state.controller,
+                maxChildSize: state.countDownViewMaxChildSize,
+                minChildSize: state.countDownViewMinChildSize,
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
