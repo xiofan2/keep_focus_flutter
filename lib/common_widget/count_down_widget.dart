@@ -10,5 +10,4 @@ class _StateCountDownWidget extends State<CountDownWidget> {
   Widget build(BuildContext context) {
     return Container();
   }
-
 }

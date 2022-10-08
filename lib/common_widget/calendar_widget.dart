@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
 import 'package:keep_focus/module/home/state.dart';
 
+
 class CalendarWidget extends StatefulWidget {
   final CalendarState calendarState;
   final DateTime monthDate;
@@ -71,6 +72,21 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     });
   }
 
+  Future<void> _pickMonth(BuildContext context) async {
+    final DateTime? selected = await showDatePicker(
+      context: context,
+      initialDate: _monthDate,
+      firstDate: DateTime(2021),
+      lastDate: _monthDate,
+    );
+    if (selected == null) {
+      return;
+    }
+    setState(() {
+      _monthDate = selected;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -83,6 +99,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
               context,
               monthDate: _monthDate,
               nowTime: _nowTime,
+              pickMonth: () => _pickMonth(context),
               switchMonth: (isPrevious) => _switchMonth(isPrevious),
             ),
             secondChild: _thisMonth(context, month: _monthDate.month),
@@ -130,6 +147,7 @@ Widget _datePicker(
   BuildContext context, {
   required DateTime monthDate,
   required DateTime nowTime,
+  required void Function() pickMonth,
   required void Function(bool) switchMonth,
 }) {
   return Container(
@@ -143,7 +161,7 @@ Widget _datePicker(
         Material(
           borderRadius: BorderRadius.circular(100),
           child: InkWell(
-            onTap: () {},
+            onTap: () => pickMonth(),
             borderRadius: BorderRadius.circular(100),
             child: Ink(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),

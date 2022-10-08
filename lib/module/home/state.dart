@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-enum CalendarState {
-  expanded,
-  scrolling,
-  collapsed
-}
+enum CalendarState { expanded, scrolling, collapsed }
 
 class HomeState {
   final GlobalKey scaffoldState = GlobalKey<ScaffoldState>();

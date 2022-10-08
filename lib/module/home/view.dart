@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide DateUtils;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get/get.dart';
 import 'package:keep_focus/common_widget/calendar_widget.dart';
-import 'package:keep_focus/module/home/state.dart';
 
 import 'component/count_down_view.dart';
 import 'logic.dart';
@@ -26,7 +26,7 @@ class HomePage extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
             centerTitle: true,
             title: Text(
-              '保持专注',
+              AppLocalizations.of(context).title,
               style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
