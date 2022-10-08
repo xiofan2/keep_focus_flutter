@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+enum CalendarState {
+  expanded,
+  scrolling,
+  collapsed
+}
 
 class HomeState {
   final GlobalKey scaffoldState = GlobalKey<ScaffoldState>();
@@ -7,16 +14,19 @@ class HomeState {
 
   late DraggableScrollableController controller;
 
-  late bool isCalendarExpanded;
+  late CalendarState calendarState;
 
-  late double countDownViewMaxChildSize;
-  late double countDownViewMinChildSize;
+  late RxDouble countDownViewMaxChildSize;
+  late RxDouble countDownViewMinChildSize;
+
+  double? previousCountDownViewSize;
+  double? currentCountDownViewSize;
 
   HomeState() {
     this
-      ..isCalendarExpanded = false
-      ..countDownViewMaxChildSize = 0.8
-      ..countDownViewMinChildSize = 0.5
+      ..calendarState = CalendarState.collapsed
+      ..countDownViewMaxChildSize = 0.8.obs
+      ..countDownViewMinChildSize = 0.5.obs
       ..controller = DraggableScrollableController();
   }
 }

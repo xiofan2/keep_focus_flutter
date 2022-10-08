@@ -11,31 +11,37 @@ class HomeLogic extends GetxController {
   void onReady() {
     super.onReady();
     _initCalendar();
-    _initCountDownView();
+    adjustCountDownView();
   }
 
   void _initCalendar() {
-    state.controller.addListener(() {
-      if (state.controller.size <= state.countDownViewMinChildSize + 0.05) {
-        state.isCalendarExpanded = true;
-        update();
-      } else if (state.isCalendarExpanded) {
-        state.isCalendarExpanded = false;
-        update();
-      }
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      state.controller.addListener(() {
+        if (state.controller.size <= state.countDownViewMinChildSize.value) {
+          state.calendarState = CalendarState.expanded;
+          update();
+        } else if (state.controller.size >=
+            state.countDownViewMaxChildSize.value) {
+          state.calendarState = CalendarState.collapsed;
+          update();
+        } else {
+          state.calendarState = CalendarState.scrolling;
+          update();
+        }
+      });
     });
   }
 
-  void _initCountDownView() {
+  void adjustCountDownView() {
     RenderBox? appBarBox =
         state.appBarKey.currentContext?.findRenderObject() as RenderBox?;
     final double bodyHeight =
         (Get.context!.size?.height ?? 0) - (appBarBox?.size.height ?? 0);
-    state.countDownViewMaxChildSize = (bodyHeight - 116) / bodyHeight;
+    state.countDownViewMaxChildSize = ((bodyHeight - 116) / bodyHeight).obs;
     RenderBox? calendarBox = state.calendarWidgetKey.currentContext
         ?.findRenderObject() as RenderBox?;
     state.countDownViewMinChildSize =
-        (bodyHeight - ((calendarBox?.size.height ?? 0) + 46)) / bodyHeight;
-    update();
+        ((bodyHeight - ((calendarBox?.size.height ?? 0) + 46)) / bodyHeight)
+            .obs;
   }
 }

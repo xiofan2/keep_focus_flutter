@@ -1,105 +1,145 @@
 import 'package:date_utils/date_utils.dart';
 import 'package:flutter/material.dart' hide DateUtils;
+import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
+import 'package:keep_focus/module/home/state.dart';
 
 class CalendarWidget extends StatefulWidget {
-  final bool isExpanded;
+  final CalendarState calendarState;
   final DateTime monthDate;
+  final void Function()? onSetCalendar;
 
   const CalendarWidget({
     super.key,
-    this.isExpanded = false,
+    this.calendarState = CalendarState.collapsed,
     required this.monthDate,
+    this.onSetCalendar,
   });
 
   @override
   State<StatefulWidget> createState() => _CalendarWidgetState();
-
 }
 
 class _CalendarWidgetState extends State<CalendarWidget> {
   late DateTime _monthDate;
+  late List<DateTime> _dateTimeList;
+  late DateTime _nowTime;
 
   @override
   void initState() {
     _monthDate = widget.monthDate;
+    _dateTimeList = DateUtils.daysInMonth(_monthDate);
+    _nowTime = DateTime.now();
     super.initState();
   }
 
   @override
   void didUpdateWidget(covariant CalendarWidget oldWidget) {
     setState(() {
-      _monthDate = widget.monthDate;
+      if (widget.calendarState == CalendarState.collapsed) {
+        _monthDate = widget.monthDate;
+      }
+      _nowTime = DateTime.now();
+      if (widget.calendarState == CalendarState.collapsed) {
+        _monthDate = _nowTime;
+        _dateTimeList = DateUtils.daysInMonth(_monthDate);
+        final List<DateTime> thisWeek = [];
+        for (DateTime dateTime in _dateTimeList) {
+          if (DateUtils.isSameWeek(dateTime, _monthDate)) {
+            thisWeek.add(dateTime);
+          }
+        }
+        _dateTimeList.removeWhere(
+            (dateTime) => DateUtils.isSameWeek(dateTime, _monthDate));
+        _dateTimeList.insertAll(0, thisWeek);
+      } else {
+        _dateTimeList = DateUtils.daysInMonth(_monthDate);
+      }
     });
     super.didUpdateWidget(oldWidget);
   }
 
-  int get startWeek {
-    return DateUtils.firstDayOfMonth(_monthDate).weekday;
-  }
-
-  bool isToday(int day) {
-    return _monthDate.year == DateTime.now().year &&
-        _monthDate.month == DateTime.now().month &&
-        _monthDate.day == day;
+  void _switchMonth(bool isPrevious) {
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      widget.onSetCalendar?.call();
+    });
+    setState(() {
+      _monthDate = isPrevious
+          ? DateUtils.previousMonth(_monthDate)
+          : DateUtils.nextMonth(_monthDate);
+      _dateTimeList = DateUtils.daysInMonth(_monthDate);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AnimatedCrossFade(
-          firstChild: _datePicker(context, monthDate: _monthDate),
-          secondChild: _thisMonth(context, month: _monthDate.month),
-          crossFadeState:
-              widget.isExpanded ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-          duration: const Duration(
-            milliseconds: 200,
-          ),
-        ),
-        Container(
-          alignment: Alignment.center,
-          margin: const EdgeInsets.only(bottom: 8),
-          child: _week(context),
-        ),
-        Flexible(
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AnimatedCrossFade(
+            firstChild: _datePicker(
+              context,
+              monthDate: _monthDate,
+              nowTime: _nowTime,
+              switchMonth: (isPrevious) => _switchMonth(isPrevious),
             ),
-            itemCount: DateUtils.daysInMonth(_monthDate).length,
-            itemBuilder: (BuildContext context, int index) {
-              final DateTime day = DateUtils.daysInMonth(_monthDate)[index];
-              final int actualDay = day.day;
-              return _day(
-                context,
-                day: actualDay,
-                isToday: isToday(
-                  actualDay,
-                ),
-                isThisMonth: day.month == _monthDate.month,
-              );
-            },
+            secondChild: _thisMonth(context, month: _monthDate.month),
+            crossFadeState: widget.calendarState == CalendarState.expanded
+                ? CrossFadeState.showFirst
+                : CrossFadeState.showSecond,
+            duration: const Duration(
+              milliseconds: 200,
+            ),
           ),
-        )
-      ],
+          Container(
+            alignment: Alignment.center,
+            margin: const EdgeInsets.only(bottom: 8),
+            child: _week(context),
+          ),
+          Flexible(
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+              ),
+              itemCount: _dateTimeList.length,
+              itemBuilder: (BuildContext context, int index) {
+                final DateTime day = _dateTimeList[index];
+                final int actualDay = day.day;
+                return _day(
+                  context,
+                  day: actualDay,
+                  isToday: DateUtils.isSameDay(day, _nowTime),
+                  isThisMonth: day.month == _monthDate.month,
+                );
+              },
+            ),
+          )
+        ],
+      ),
     );
   }
 }
 
-Widget _datePicker(BuildContext context, {required DateTime monthDate}) {
+Widget _datePicker(
+  BuildContext context, {
+  required DateTime monthDate,
+  required DateTime nowTime,
+  required void Function(bool) switchMonth,
+}) {
   return Container(
     margin: const EdgeInsets.only(bottom: 12),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        IconButton(onPressed: () {}, icon: const Icon(Icons.chevron_left)),
+        IconButton(
+            onPressed: () => switchMonth(true),
+            icon: const Icon(Icons.chevron_left)),
         Material(
           borderRadius: BorderRadius.circular(100),
           child: InkWell(
@@ -121,7 +161,12 @@ Widget _datePicker(BuildContext context, {required DateTime monthDate}) {
             ),
           ),
         ),
-        IconButton(onPressed: () {}, icon: const Icon(Icons.chevron_right)),
+        IconButton(
+            onPressed: monthDate.year == nowTime.year &&
+                    monthDate.month == nowTime.month
+                ? null
+                : () => switchMonth(false),
+            icon: const Icon(Icons.chevron_right)),
       ],
     ),
   );

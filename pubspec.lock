@@ -213,7 +213,7 @@ packages:
     source: hosted
     version: "2.0.13"
   shared_preferences_ios:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: shared_preferences_ios
       url: "https://pub.flutter-io.cn"

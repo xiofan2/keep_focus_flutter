@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide DateUtils;
 import 'package:get/get.dart';
 import 'package:keep_focus/common_widget/calendar_widget.dart';
+import 'package:keep_focus/module/home/state.dart';
 
 import 'component/count_down_view.dart';
 import 'logic.dart';
@@ -34,18 +35,22 @@ class HomePage extends StatelessWidget {
               Align(
                 alignment: Alignment.topCenter,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
                   child: CalendarWidget(
                     key: state.calendarWidgetKey,
                     monthDate: DateTime.now(),
-                    isExpanded: state.isCalendarExpanded,
+                    calendarState: state.calendarState,
+                    onSetCalendar: () => logic.adjustCountDownView(),
                   ),
                 ),
               ),
-              CountDownView(
-                controller: state.controller,
-                maxChildSize: state.countDownViewMaxChildSize,
-                minChildSize: state.countDownViewMinChildSize,
+              Obx(
+                () => CountDownView(
+                  controller: state.controller,
+                  maxChildSize: state.countDownViewMaxChildSize.value,
+                  minChildSize: state.countDownViewMinChildSize.value,
+                ),
               ),
             ],
           ),
