@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide DateUtils;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get/get.dart';
+import 'package:keep_focus/module/settings/view.dart';
 import 'package:keep_focus/universal_widget/calendar_widget.dart';
 
 import 'component/count_down_view.dart';
@@ -29,6 +30,12 @@ class HomePage extends StatelessWidget {
               AppLocalizations.of(context).title,
               style: Theme.of(context).textTheme.titleLarge,
             ),
+            actions: [
+              IconButton(
+                onPressed: () => Get.to(SettingsPage()),
+                icon: const Icon(Icons.settings_outlined),
+              ),
+            ],
           ),
           body: Stack(
             children: [
