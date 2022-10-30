@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide DateUtils;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get/get.dart';
-import 'package:keep_focus/common_widget/calendar_widget.dart';
+import 'package:keep_focus/universal_widget/calendar_widget.dart';
 
 import 'component/count_down_view.dart';
 import 'logic.dart';

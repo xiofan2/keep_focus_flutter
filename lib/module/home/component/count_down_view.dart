@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:keep_focus/module/prepare_counting/view.dart';
 
 class CountDownView extends StatelessWidget {
   final DraggableScrollableController? controller;
@@ -16,6 +17,7 @@ class CountDownView extends StatelessWidget {
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
       controller: controller,
+      snap: true,
       initialChildSize: maxChildSize,
       maxChildSize: maxChildSize,
       minChildSize: minChildSize > maxChildSize ? maxChildSize : minChildSize,
@@ -36,7 +38,7 @@ class CountDownView extends StatelessWidget {
                 delegate: CountDownSliverPersistentHeaderDelegate(),
               ),
               SliverToBoxAdapter(
-                child: Column(),
+                child: PrepareCountingPage(),
               )
             ],
           ),
@@ -66,18 +68,16 @@ class CountDownSliverPersistentHeaderDelegate
 }
 
 Widget _dragIndicator(BuildContext context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Container(
-        width: 44,
-        height: 6,
-        margin: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceVariant,
-          borderRadius: BorderRadius.circular(100.0),
-        ),
-      )
-    ],
+  return Container(
+    alignment: Alignment.center,
+    child: Container(
+      width: 44,
+      height: 6,
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceVariant,
+        borderRadius: BorderRadius.circular(100.0),
+      ),
+    ),
   );
 }
